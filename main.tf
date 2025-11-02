@@ -29,13 +29,13 @@ module "security" {
 module "loadbalancing" {
   source = "./modules/loadbalancing"
 
-  project_name         = var.project_name
-  vpc_id               = module.network.vpc_id
-  public_subnet_ids    = module.network.public_subnet_ids
-  private_subnet_ids   = module.network.private_subnet_ids
-  alb_public_sg_id     = module.security.alb_public_sg_id
-  alb_internal_sg_id   = module.security.alb_internal_sg_id
-  common_tags          = var.common_tags
+  project_name       = var.project_name
+  vpc_id             = module.network.vpc_id
+  public_subnet_ids  = module.network.public_subnet_ids
+  private_subnet_ids = module.network.private_subnet_ids
+  alb_public_sg_id   = module.security.alb_public_sg_id
+  alb_internal_sg_id = module.security.alb_internal_sg_id
+  common_tags        = var.common_tags
 }
 
 # --- Compute Module ---

@@ -35,12 +35,13 @@ Internet → Public ALB → Nginx Proxies (Public Subnets)
 ```bash
 # Create S3 bucket for state
 aws s3api create-bucket \
-  --bucket your-terraform-state-bucket \
-  --region us-east-1
+  --bucket reverse-proxy-terraform-state-mohamed \
+  --region eu-west-1 \
+  --create-bucket-configuration LocationConstraint=eu-central-1
 
 # Enable versioning
 aws s3api put-bucket-versioning \
-  --bucket your-terraform-state-bucket \
+  --bucket reverse-proxy-terraform-state-mohamed \
   --versioning-configuration Status=Enabled
 
 # Create DynamoDB table for locking
@@ -49,14 +50,10 @@ aws dynamodb create-table \
   --attribute-definitions AttributeName=LockID,AttributeType=S \
   --key-schema AttributeName=LockID,KeyType=HASH \
   --billing-mode PAY_PER_REQUEST \
-  --region us-east-1
+  --region eu-west-1
 ```
 
 ### 2. Configure Variables
-
-```bash
-# Copy example tfvars
-cp terraform.tfvars.example terraform.tfvars
 
 # Edit with your values
 nano terraform.tfvars
@@ -80,10 +77,10 @@ terraform workspace select dev
 
 ```bash
 # Plan deployment
-terraform plan -out=tfplan
+terraform plan
 
 # Apply
-terraform apply tfplan
+terraform apply
 ```
 
 ## 📂 Project Structure
@@ -260,16 +257,8 @@ Creates 4 security groups with proper ingress/egress rules
 - Sets up listeners
 - Attaches EC2 instances to target groups
 
-## 🤝 Contributing
-
-Feel free to submit issues and enhancement requests!
-
-## 📄 License
-
-MIT License - See LICENSE file for details
-
 ---
 
-**Author**: Your Name  
+**Author**: Mohamed Hesham Elfateh  
 **Project**: AWS Reverse Proxy Infrastructure  
 **Version**: 1.0.0
