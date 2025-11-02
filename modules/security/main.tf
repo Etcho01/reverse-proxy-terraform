@@ -50,7 +50,7 @@ resource "aws_security_group" "alb_internal_sg" {
 # Proxy EC2 Security Group
 resource "aws_security_group" "proxy_sg" {
   name        = "${var.project_name}-proxy-sg"
-  description = "Allow ALB -> Proxy and SSH access"
+  description = "Allow ALB to Proxy and SSH access"
   vpc_id      = var.vpc_id
 
   # Allow SSH for provisioners
@@ -77,7 +77,7 @@ resource "aws_security_group" "proxy_sg" {
 # Backend EC2 Security Group
 resource "aws_security_group" "backend_sg" {
   name        = "${var.project_name}-backend-sg"
-  description = "Allow internal ALB -> backend and SSH via bastion"
+  description = "Allow internal ALB to backend and SSH via bastion"
   vpc_id      = var.vpc_id
 
   # Allow SSH from proxy instances (they act as bastion)

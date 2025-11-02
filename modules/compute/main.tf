@@ -47,35 +47,14 @@ resource "aws_instance" "proxy" {
 
   # --- Remote Exec: Install Nginx ---
   provisioner "remote-exec" {
-    inline = [
-      "sudo yum update -y",
-      "sudo amazon-linux-extras install nginx1 -y",
-      "sudo systemctl enable nginx",
-      "sudo systemctl start nginx"
-    ]
+    script = "${path.module}/../../scripts/install-nginx.sh"
   }
 
   # --- Remote Exec: Configure Nginx as Reverse Proxy ---
-  provisioner "remote-exec" {
-    inline = [
-      "sudo tee /etc/nginx/conf.d/reverse-proxy.conf > /dev/null <<'EOF'",
-      "upstream backend {",
-      "    server ${var.internal_alb_dns};",
-      "}",
-      "",
-      "server {",
-      "    listen 80;",
-      "    location / {",
-      "        proxy_pass http://backend;",
-      "        proxy_set_header Host $host;",
-      "        proxy_set_header X-Real-IP $remote_addr;",
-      "        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;",
-      "    }",
-      "}",
-      "EOF",
-      "sudo systemctl restart nginx"
-    ]
-  }
+ provisioner "remote-exec" {
+  script = "${path.module}/../../scripts/configure-nginx.sh"
+  args   = [var.internal_alb_dns]
+}
 
   # --- Local Exec: Print IP to File ---
   provisioner "local-exec" {
@@ -118,15 +97,10 @@ resource "aws_instance" "backend" {
   }
 
   # --- Remote Exec: Install Python & Flask ---
-  provisioner "remote-exec" {
-    inline = [
-      "sudo yum update -y",
-      "sudo yum install python3 python3-pip -y",
-      "cd /tmp/app",
-      "sudo pip3 install -r requirements.txt || true",
-      "sudo python3 app.py &"
-    ]
-  }
+ provisioner "remote-exec" {
+  script = "${path.module}/../../scripts/install-flask.sh"
+  args   = ["/tmp/app"]
+}
 
   # --- Local Exec: Print Private IP to File ---
   provisioner "local-exec" {
