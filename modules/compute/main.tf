@@ -1,6 +1,7 @@
 ##########################################
 # COMPUTE MODULE - main.tf
 # Creates EC2 instances with provisioners
+# FIXED: Removed invalid 'args' attribute
 ##########################################
 
 # --- Data Source: Amazon Linux 2 AMI ---
@@ -50,18 +51,26 @@ resource "aws_instance" "proxy" {
     script = "${path.module}/../../scripts/install-nginx.sh"
   }
 
+  # --- File Provisioner: Upload configure script ---
+  provisioner "file" {
+    source      = "${path.module}/../../scripts/configure-nginx.sh"
+    destination = "/tmp/configure-nginx.sh"
+  }
+
   # --- Remote Exec: Configure Nginx as Reverse Proxy ---
- provisioner "remote-exec" {
-  script = "${path.module}/../../scripts/configure-nginx.sh"
-  args   = [var.internal_alb_dns]
-}
+  # FIXED: Set environment variable and execute script
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/configure-nginx.sh",
+      "export BACKEND_DNS='${var.internal_alb_dns}'",
+      "bash /tmp/configure-nginx.sh"
+    ]
+  }
 
   # --- Local Exec: Print IP to File ---
   provisioner "local-exec" {
     command = "echo 'proxy-ip${count.index + 1} ${self.public_ip}' >> ${var.ip_output_file}"
-  }
-
-  depends_on = [var.internal_alb_dns]
+  }   
 }
 
 # --- Backend EC2 Instances (Private Subnets) ---
@@ -96,11 +105,21 @@ resource "aws_instance" "backend" {
     destination = "/tmp/app"
   }
 
+  # --- File Provisioner: Upload install script ---
+  provisioner "file" {
+    source      = "${path.module}/../../scripts/install-flask.sh"
+    destination = "/tmp/install-flask.sh"
+  }
+
   # --- Remote Exec: Install Python & Flask ---
- provisioner "remote-exec" {
-  script = "${path.module}/../../scripts/install-flask.sh"
-  args   = ["/tmp/app"]
-}
+  # FIXED: Set environment variable and execute script
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/install-flask.sh",
+      "export APP_DIR='/tmp/app'",
+      "bash /tmp/install-flask.sh"
+    ]
+  }
 
   # --- Local Exec: Print Private IP to File ---
   provisioner "local-exec" {
