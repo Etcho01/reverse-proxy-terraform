@@ -61,23 +61,24 @@ resource "aws_lb_target_group" "proxy_tg" {
 }
 
 # --- Target Group: Backend ---
+# CHANGED: Backend now listens on port 5000
 resource "aws_lb_target_group" "backend_tg" {
   name     = "${var.project_name}-backend-tg"
-  port     = 80
+  port     = 5000  # Changed from 80 to 5000
   protocol = "HTTP"
   vpc_id   = var.vpc_id
   target_type = "instance"
 
   health_check {
     enabled             = true
-    path                = "/"
+    path                = "/health"  # Using dedicated health endpoint
     port                = "traffic-port"
     protocol            = "HTTP"
     healthy_threshold   = 2
     unhealthy_threshold = 2
     timeout             = 5
     interval            = 30
-    matcher             = "200-399"
+    matcher             = "200"
   }
 
   tags = merge(var.common_tags, { 

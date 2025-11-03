@@ -59,7 +59,7 @@ resource "aws_security_group" "proxy_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # Restrict this in production
+    cidr_blocks = ["0.0.0.0/0"]  # TODO: Restrict this in production
   }
 
   egress {
@@ -103,7 +103,7 @@ resource "aws_security_group" "backend_sg" {
 
 # Security Group Rules (created after all SGs exist to avoid circular dependencies)
 
-# Allow Public ALB -> Proxy
+# Allow Public ALB -> Proxy (port 80)
 resource "aws_security_group_rule" "alb_public_to_proxy" {
   type                     = "ingress"
   from_port                = 80
@@ -114,7 +114,7 @@ resource "aws_security_group_rule" "alb_public_to_proxy" {
   description              = "Allow HTTP from public ALB"
 }
 
-# Allow Proxy -> Internal ALB
+# Allow Proxy -> Internal ALB (port 80)
 resource "aws_security_group_rule" "proxy_to_internal_alb" {
   type                     = "ingress"
   from_port                = 80
@@ -125,13 +125,13 @@ resource "aws_security_group_rule" "proxy_to_internal_alb" {
   description              = "Allow HTTP from proxies"
 }
 
-# Allow Internal ALB -> Backend
+# CHANGED: Allow Internal ALB -> Backend (port 5000 instead of 80)
 resource "aws_security_group_rule" "internal_alb_to_backend" {
   type                     = "ingress"
-  from_port                = 80
-  to_port                  = 80
+  from_port                = 5000
+  to_port                  = 5000
   protocol                 = "tcp"
   security_group_id        = aws_security_group.backend_sg.id
   source_security_group_id = aws_security_group.alb_internal_sg.id
-  description              = "Allow HTTP from internal ALB"
+  description              = "Allow HTTP from internal ALB on port 5000"
 }

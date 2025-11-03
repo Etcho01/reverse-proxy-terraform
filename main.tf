@@ -25,7 +25,6 @@ module "security" {
 }
 
 # --- Load Balancing Module ---
-# Created WITHOUT instance attachments to avoid circular dependency
 module "loadbalancing" {
   source = "./modules/loadbalancing"
 
@@ -59,7 +58,6 @@ module "compute" {
 }
 
 # --- Target Group Attachments (Root Level) ---
-# These attach EC2 instances to target groups AFTER both modules are created
 resource "aws_lb_target_group_attachment" "proxy_attachment" {
   count            = var.proxy_count
   target_group_arn = module.loadbalancing.proxy_target_group_arn
@@ -67,9 +65,10 @@ resource "aws_lb_target_group_attachment" "proxy_attachment" {
   port             = 80
 }
 
+# CHANGED: Backend now runs on port 5000
 resource "aws_lb_target_group_attachment" "backend_attachment" {
   count            = var.backend_count
   target_group_arn = module.loadbalancing.backend_target_group_arn
   target_id        = module.compute.backend_instance_ids[count.index]
-  port             = 80
+  port             = 5000 # Changed from 80 to 5000
 }

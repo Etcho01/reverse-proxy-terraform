@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Simple Flask Backend Application
-Serves on port 80 to respond to ALB health checks
+Serves on port 5000 (non-privileged port)
 """
 
 from flask import Flask, jsonify
@@ -14,7 +14,10 @@ app = Flask(__name__)
 def home():
     """Health check endpoint"""
     hostname = socket.gethostname()
-    ip = socket.gethostbyname(hostname)
+    try:
+        ip = socket.gethostbyname(hostname)
+    except:
+        ip = "unknown"
     
     return jsonify({
         'status': 'healthy',
@@ -39,5 +42,5 @@ def info():
     })
 
 if __name__ == '__main__':
-    # Run on port 80 to match ALB target group
-    app.run(host='0.0.0.0', port=80, debug=False)
+    # Run on port 5000 (non-privileged, doesn't require root)
+    app.run(host='0.0.0.0', port=5000, debug=False)

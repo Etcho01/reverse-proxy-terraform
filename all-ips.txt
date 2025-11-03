@@ -1,0 +1,8 @@
+proxy-ip2 54.247.215.127
+proxy-ip1 34.247.71.17
+proxy-ip1 18.201.160.141
+proxy-ip2 54.246.78.145
+proxy-ip1 3.250.55.84
+proxy-ip2 54.75.97.13
+backend-ip2 10.0.3.247
+backend-ip1 10.0.1.80
