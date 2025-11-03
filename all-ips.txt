@@ -6,3 +6,11 @@ proxy-ip1 3.250.55.84
 proxy-ip2 54.75.97.13
 backend-ip2 10.0.3.247
 backend-ip1 10.0.1.80
+proxy-ip2 34.250.90.9
+proxy-ip1 3.255.168.172
+backend-ip2 10.0.3.142
+backend-ip1 10.0.1.8
+proxy-ip1 52.209.174.23
+proxy-ip2 108.129.161.159
+backend-ip2 10.0.3.13
+backend-ip1 10.0.1.87
